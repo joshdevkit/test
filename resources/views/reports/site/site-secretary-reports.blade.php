@@ -166,20 +166,28 @@
                     </div>
 
                     <div id="transaction_equipment" class="d-none mt-4">
-                        <table id="equipmentRequisitionTable" class="table table-bordered table-striped mt-5">
-                            <thead>
-                                <tr>
-                                    <th class="w-25">ITEM</th>
-                                    <th>QUANTITY REQUESTED</th>
-                                    <th>REQUESTED BY</th>
-                                    <th>PURPOSE</th>
-                                    <th>DATE REQUESTED</th>
-                                </tr>
-                            </thead>
-                            <tbody id="equipment_data_requisition">
+                        <div class="d-flex mb-3 mt-4">
+                            <div class="ml-auto">
+                                <button class="btn btn-info" id="btn_transaction_print_report">Print</button>
+                                <button class="btn btn-warning ml-2" id="btn_transaction_print_all">Print All</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="equipmentRequisitionTable" class="table table-bordered table-striped mt-5">
+                                <thead>
+                                    <tr>
+                                        <th class="w-25">ITEM</th>
+                                        <th>QUANTITY REQUESTED</th>
+                                        <th>REQUESTED BY</th>
+                                        <th>PURPOSE</th>
+                                        <th>DATE REQUESTED</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="equipment_data_requisition">
 
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -409,7 +417,7 @@
                     let formattedDate = new Date(item.date_added).toLocaleString();
 
                     let tableRow = `<tr>
-                                <td>${item.item}</td>
+                                <td>${item.equipment_item}</td>
                                 <td>${item.quantity_requested}</td>
                                 <td>${item.request_by}</td>
                                 <td>${item.purpose}</td>
@@ -487,7 +495,7 @@
                     rows.push(rowData);
                 });
 
-                fetch("{{ route('suppliesReportPrint') }}", {
+                fetch("{{ route('suppliesReportPrintbtn') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -508,7 +516,7 @@
 
             $('#btn_supplies_print_all').on('click', function() {
                 //
-                fetch("{{ route('suppliesReportPrintAll') }}", {
+                fetch("{{ route('suppliesReportPrintAllbtn') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -525,6 +533,55 @@
                     })
                     .catch(error => console.error("Error:", error));
 
+            })
+
+            $('#btn_transaction_print_report').on('click', function(){
+
+                    let rows = [];
+                document.querySelectorAll("#equipmentRequisitionTable tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
+
+                fetch("{{ route('siteOfficeTransactionsPrint') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'SITE OFFICE EQUIPMENT REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
+            })
+
+            $('#btn_transaction_print_all').on('click', function(){
+                    fetch("{{ route('siteOfficeTransactionsPrintAll') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            title: 'SITE OFFICE EQUIPMENT REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
             })
         });
 </script>

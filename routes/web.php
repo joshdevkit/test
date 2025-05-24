@@ -51,6 +51,10 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('/approval', function () {
+    return view('confirmations');
+})->name('confirmations');
+
 Route::get('/check-auth', function () {
     return response()->json(['authenticated' => auth()->check()]);
 });
@@ -80,7 +84,8 @@ Route::middleware(['auth', 'role:site secretary'])->group(function () {
 
     Route::get('office/calendaro', [CalendaroController::class, 'index'])->name('office.calendaro');
     Route::get('/office/transactions', [TransactionOfficeController::class, 'index'])->name('office-admin.transactions');
-    Route::get('/office/print-transaction', [TransactionOfficeController::class, 'print'])->name('office.transaction-print');
+    Route::post('/office/print-transaction', [TransactionOfficeController::class, 'print'])->name('office.transaction-print');
+    Route::get('/office/print-all-transaction', [TransactionOfficeController::class, 'printAllOfficeTransac'])->name('office.transaction-print-all');
 
 
     Route::get('/office/transactions/details/{id}', [TransactionOfficeController::class, 'details'])->name('office-admin.transactions-details');
@@ -148,6 +153,7 @@ Route::middleware(['auth', 'role:laboratory'])->group(function () {
     Route::get('laboratory/testing', [TestingController::class, 'index'])->name('testing.index');
     Route::get('laboratory/calendar', [CalendarController::class, 'index'])->name('laboratory.calendar');
     Route::get('/laboratory/transaction', [TeacherborrowController::class, 'index'])->name('transaction.index');
+    Route::get('/laboratory/print-transaction', [TeacherborrowController::class, 'print_transaction'])->name('transaction.print-data');
     Route::get('/laboratory/view-requisition-details/{id}', [TeacherborrowController::class, 'retrieve'])->name('borrows.show');
     Route::put('/laboratory/update-requisition-details/{id}', [TeacherborrowController::class, 'decision'])->name('teachers-borrows.update');
     Route::post('/laboratory/approve-requisition-items', [TeacherborrowController::class, 'approve_selected'])->name('laboratory.approve-requisition-items');
@@ -224,6 +230,8 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('superadmin/equipment', [SEquipmentController::class, 'index'])->name('superadmin.equipment.index');
     Route::get('superadmin/supplies', [SSuppliesController::class, 'index'])->name('superadmin.supplies.index');
     Route::resource('users', UserManagementController::class);
+    Route::put('users-verify/{user}', [UserManagementController::class, 'verifiy'])->name('users-verify');
+    Route::put('users-declined/{user}', [UserManagementController::class, 'declined'])->name('users-declined');
     Route::get('superadmin/transaction', [TeacherborrowController::class, 'index'])->name('superadmin.transaction.index');
     Route::get('superadmin/site-transactions', [AdminSiteOffice::class, 'index'])->name('superadmin.site.index');
 
@@ -344,8 +352,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('laboratory-reports-all', 'printAllLabReport')->name('print-Alllab-report');
         Route::post('laboratory-requisition-reports-print', 'requsitionPrint')->name('print-laboratory-requisition-reports');
         Route::post('laboratory-requisition-reports-print-all', 'printAllRequisitionReports')->name('print-laboratory-requisition-reports-all');
-        Route::post('supplies-report-print', 'suppliesReportPrint')->name('suppliesReportPrint');
-        Route::post('supplies-report-print-all', 'suppliesReportPrintAll')->name('suppliesReportPrintAll');
+        Route::post('supplies-report-print', 'suppliesReportPrint')->name('suppliesReportPrintbtn');
+        Route::post('supplies-report-print-all', 'suppliesReportPrintAll')->name('suppliesReportPrintAllbtn');
+        Route::post('transaction-equipment-report-print', 'siteOfficeTransactionsPrint')->name('siteOfficeTransactionsPrint');
+        Route::post('transaction-equipment-report-print-all', 'siteOfficeTransactionsPrintAll')->name('siteOfficeTransactionsPrintAll');
+        Route::post('transaction-equipment-damage-report-print-all', 'siteOfficeTransactionsPrintAllDamage')->name('siteOfficeTransactionsPrintAllDamage');
     });
 });
 

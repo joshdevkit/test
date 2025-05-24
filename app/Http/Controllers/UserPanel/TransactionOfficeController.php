@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TransactionStatusNotification;
 use App\Notifications\UserNotifications;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 
 class TransactionOfficeController extends Controller
@@ -697,46 +699,147 @@ class TransactionOfficeController extends Controller
     }
 
 
-    public function print()
+    public function print(Request $request)
     {
+        $title = $request->input('title');
+        $path = $request->input('path');
+        $data = $request->input('data');
+        $collection = collect($data);
+
+        // Extract the first element (index 0) of each inner array
+        $ids = $collection->pluck(0);
+
+        // if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+        //     throw new HttpResponseException(response()->json([
+        //         'message' => 'No valid data available to generate PDF.',
+        //     ], 422));
+        // }
         $requests = DB::table('office_requests')
             ->select(
-                'office_requests.*',
+                'office_requests.id',
+                'office_requests.item_id',
+                'office_requests.item_type',
+                'office_requests.quantity_requested',
+                'office_requests.requested_by',
+                'office_requests.purpose',
+                'office_requests.status',
+                'office_requests.created_at',
+                'office_requests.updated_at',
+                'office_requests.is_notified',
+                'users.id',
                 'users.name as requested_by_name',
-                DB::raw("CASE
-                    WHEN office_requests.item_type = 'Supplies' THEN supplies_items.serial_no
-                    WHEN office_requests.item_type = 'Equipments' THEN equipment_items.serial_no
-                 END as serial_no"),
-                DB::raw("CASE
-                    WHEN office_requests.item_type = 'Supplies' THEN supplies.item
-                    WHEN office_requests.item_type = 'Equipments' THEN equipment2.item
-                 END as item_name")
+                'supplies.item as supply_item_name',
+                DB::raw('GROUP_CONCAT(DISTINCT supplies_items.serial_no) as supply_serial_numbers'),
+
+                // Use GROUP_CONCAT to combine equipment info into one string per request
+                DB::raw('GROUP_CONCAT(DISTINCT equipment.item) as equipment_item_name'),
+                DB::raw('GROUP_CONCAT(DISTINCT equipment_items.serial_no) as equipment_serial_numbers')
             )
+            ->leftJoin('users', function ($join) {
+                $join->on('office_requests.requested_by', '=', 'users.id');
+            })
             ->leftJoin('supplies', function ($join) {
                 $join->on('office_requests.item_id', '=', 'supplies.id')
+                    ->whereNotNull('office_requests.item_id')
                     ->where('office_requests.item_type', '=', 'Supplies');
             })
-            ->leftJoin('equipment as equipment1', function ($join) {
-                $join->on('office_requests.item_id', '=', 'equipment1.id')
+            ->leftJoin('supplies_items', 'supplies.id', '=', 'supplies_items.supplies_id')
+
+            ->leftJoin('borrowed_equipment', function ($join) {
+                $join->on('office_requests.id', '=', 'borrowed_equipment.office_requests_id')
+                    ->whereNull('office_requests.item_id')
                     ->where('office_requests.item_type', '=', 'Equipments');
             })
-            ->leftJoin('borrowed_equipment', 'borrowed_equipment.office_requests_id', '=', 'office_requests.id')
-            ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
-            ->leftJoin('equipment_items', function ($join) {
-                $join->on('borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
-                    ->where('office_requests.item_type', '=', 'Equipments');
-            })
-            ->leftJoin('equipment as equipment2', 'equipment_items.equipment_id', '=', 'equipment2.id')
-            ->leftJoin('supplies_items', function ($join) {
-                $join->on('borrowed_equipment.equipment_serial_id', '=', 'supplies_items.id')
-                    ->where('office_requests.item_type', '=', 'Supplies');
-            })
-            ->leftJoin('supplies as supplies2', 'supplies_items.supplies_id', '=', 'supplies2.id')
-            ->orderBy('office_requests.created_at', 'DESC')
+            ->leftJoin('equipment', 'borrowed_equipment.item_id', '=', 'equipment.id')
+            ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
+            ->whereIn('office_requests.id', $ids)
+            ->groupBy(
+                'office_requests.id',
+                'office_requests.item_id',
+                'office_requests.item_type',
+                'office_requests.quantity_requested',
+                'office_requests.requested_by',
+                'office_requests.purpose',
+                'office_requests.status',
+                'office_requests.created_at',
+                'office_requests.updated_at',
+                'office_requests.is_notified',
+                'supplies.item',
+                'users.id',
+                'users.name'
+            )
+
             ->get();
+
         // dd($requests);
 
+        $pdf = Pdf::loadView("office.transactions.print", compact('requests', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('office_transaction_request_data.pdf');
+        // return view('office.transactions.print', compact('requests'));
+    }
 
-        return view('office.transactions.print', compact('requests'));
+    public function printAllOfficeTransac()
+    {
+        $title = "OFFICE TRANSACTION";
+        $requests = DB::table('office_requests')
+            ->select(
+                'office_requests.id',
+                'office_requests.item_id',
+                'office_requests.item_type',
+                'office_requests.quantity_requested',
+                'office_requests.requested_by',
+                'office_requests.purpose',
+                'office_requests.status',
+                'office_requests.created_at',
+                'office_requests.updated_at',
+                'office_requests.is_notified',
+                'users.id',
+                'users.name as requested_by_name',
+                'supplies.item as supply_item_name',
+                DB::raw('GROUP_CONCAT(DISTINCT supplies_items.serial_no) as supply_serial_numbers'),
+
+                // Use GROUP_CONCAT to combine equipment info into one string per request
+                DB::raw('GROUP_CONCAT(DISTINCT equipment.item) as equipment_item_name'),
+                DB::raw('GROUP_CONCAT(DISTINCT equipment_items.serial_no) as equipment_serial_numbers')
+            )
+            ->leftJoin('users', function ($join) {
+                $join->on('office_requests.requested_by', '=', 'users.id');
+            })
+            ->leftJoin('supplies', function ($join) {
+                $join->on('office_requests.item_id', '=', 'supplies.id')
+                    ->whereNotNull('office_requests.item_id')
+                    ->where('office_requests.item_type', '=', 'Supplies');
+            })
+            ->leftJoin('supplies_items', 'supplies.id', '=', 'supplies_items.supplies_id')
+
+            ->leftJoin('borrowed_equipment', function ($join) {
+                $join->on('office_requests.id', '=', 'borrowed_equipment.office_requests_id')
+                    ->whereNull('office_requests.item_id')
+                    ->where('office_requests.item_type', '=', 'Equipments');
+            })
+            ->leftJoin('equipment', 'borrowed_equipment.item_id', '=', 'equipment.id')
+            ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
+            ->groupBy(
+                'office_requests.id',
+                'office_requests.item_id',
+                'office_requests.item_type',
+                'office_requests.quantity_requested',
+                'office_requests.requested_by',
+                'office_requests.purpose',
+                'office_requests.status',
+                'office_requests.created_at',
+                'office_requests.updated_at',
+                'office_requests.is_notified',
+                'supplies.item',
+                'users.id',
+                'users.name'
+            )
+
+            ->get();
+
+        // dd($requests);
+
+        $pdf = Pdf::loadView("office.transactions.print", compact('requests', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('office_transaction_request_data.pdf');
     }
 }

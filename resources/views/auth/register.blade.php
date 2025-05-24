@@ -24,8 +24,8 @@
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
-                required autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
+                autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -45,6 +45,22 @@
 
             <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
                 name="password_confirmation" required autocomplete="new-password" />
+
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
+
+        <div class="mt-4">
+            <x-input-label for="roles" :value="__('Available Role')" />
+
+            <select id="roles" name="role" required
+                class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <option value="">Select a role</option>
+                @forelse ($roles as $role)
+                <option value="{{ $role->id }}">{{ ucfirst($role->name )}}</option>
+                @empty
+                <option value="">No Roles Available</option>
+                @endforelse
+            </select>
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>

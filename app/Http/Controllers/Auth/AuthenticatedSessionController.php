@@ -28,7 +28,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
+        if (!$request->user()->is_verified) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Account not yet verified');
+        }
         if ($request->user()->hasRole('office')) {
             return redirect()->route('office.dashboardo');
         } elseif ($request->user()->hasRole('laboratory')) {

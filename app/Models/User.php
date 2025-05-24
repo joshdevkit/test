@@ -13,6 +13,13 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'is_verified',
+        'is_declined'
+    ];
     /**
      * The attributes that are mass assignable.
      *

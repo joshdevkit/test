@@ -7,6 +7,7 @@ use App\Models\Requisition;
 use App\Models\RequisitionItemsSerial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GeneralReportsController extends Controller
 {
@@ -89,6 +90,9 @@ class GeneralReportsController extends Controller
             case 'equipment_requisition':
                 $data = $this->getOfficeRequestRequisitionEquipment();
                 break;
+            case 'equipment_requisition_all':
+                $data = $this->getOfficeRequestRequisitionEquipmentAll();
+                break;
             default:
                 return collect();
                 break;
@@ -147,23 +151,37 @@ class GeneralReportsController extends Controller
 
     protected function getOfficeRequestRequisitionEquipment()
     {
-        return OfficeRequest::select(
-            'office_requests.*',
-            'borrowed_equipment.office_requests_id',
-            'borrowed_equipment.borrow_status',
-            'equipment.item as equipment_item',
-            'equipment_items.serial_no as equipment_serial_no',
-            'equipment_items.note as equipment_notes',
+        return OfficeRequest::selectRaw('
+                office_requests.id,
+                MAX(users.name) as request_by,
+                MAX(equipment.item) as equipment_item,
+                GROUP_CONCAT(equipment_items.serial_no) as serial_numbers,
+                MAX(office_requests.quantity_requested) as quantity_requested,
+                MAX(office_requests.purpose) as purpose,
+                MAX(office_requests.created_at) as date_added
+            ')
+            ->leftJoin('borrowed_equipment', 'office_requests.id', '=', 'borrowed_equipment.office_requests_id')
+            ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
+            ->leftJoin('equipment', 'equipment_items.equipment_id', '=', 'equipment.id')
+            ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
+            ->where('office_requests.item_type', 'Equipments')
+            ->groupBy('office_requests.id')
+            ->get();
+    }
 
-            'borrowed_equipment.date_returned',
-            'borrowed_equipment.borrow_status',
-            'borrowed_equipment.item_id',
-            'borrowed_equipment.equipment_serial_id',
-            'equipment_items.serial_no',
-            'equipment_items.equipment_id',
-            'equipment.*',
+
+    protected function getOfficeRequestRequisitionEquipmentAll()
+    {
+        $rawData = OfficeRequest::select(
+            'office_requests.id',
             'users.name as request_by',
-            'office_requests.created_at as date_added'
+            'equipment.item as equipment_item',
+            'equipment_items.serial_no',
+            'equipment_items.note',
+            'office_requests.quantity_requested',
+            'office_requests.purpose',
+            'office_requests.created_at as date_added',
+            'borrowed_equipment.borrow_status'
         )
             ->leftJoin('borrowed_equipment', 'office_requests.id', '=', 'borrowed_equipment.office_requests_id')
             ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
@@ -171,5 +189,21 @@ class GeneralReportsController extends Controller
             ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
             ->where('office_requests.item_type', 'Equipments')
             ->get();
+
+        $grouped = $rawData->groupBy('id')->map(function ($items) {
+            return [
+                'id' => $items->first()->id,
+                'request_by' => $items->first()->request_by,
+                'equipment_item' => $items->first()->equipment_item,
+                'serial_numbers' => implode(', ', $items->pluck('serial_no')->filter()->all()),
+                'notes' => implode(', ', $items->pluck('note')->filter()->all()),
+                'quantity_requested' => $items->first()->quantity_requested,
+                'purpose' => $items->first()->purpose,
+                'borrow_status' => $items->first()->borrow_status,
+                'date_added' => $items->first()->date_added,
+            ];
+        })->values();
+
+        return $grouped;
     }
 }

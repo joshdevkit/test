@@ -1,8 +1,7 @@
-<!DOCTYPE html>
 <html>
 
 <head>
-    <title>Print {{ $title }}</title>
+    <title>Print Data</title>
     <style>
         body {
             font-family: "Times New Roman", serif;
@@ -68,6 +67,7 @@
 </head>
 
 <body>
+    <!-- Fully Centered Header (Logo + Text) -->
     <div class="header-container">
         <div class="header">
             <img src="{{ public_path('dist/img/spup1.png') }}" alt="Logo">
@@ -80,48 +80,32 @@
 
     <div class="school-title">
         <h4>SCHOOL OF INFORMATION TECHNOLOGY AND ENGINEERING</h4>
-        <h5><strong>OFFICE TRANSACTIONS</strong></h5>
+        <h5><strong>REPORTS OF {{ $title }}</strong></h5>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Instructor</th>
-                <th>Item</th>
-                <th>Quantity</th>
+                <th>Item.</th>
+                <th>Requested By</th>
                 <th>Purpose</th>
-                <th>Datetime Borrowed</th>
                 <th>Status</th>
-                <th>Days Not Returned</th>
-                <th>Datetime Returned</th>
+                <th>Note</th>
+                <th>Date Requested</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($requests as $request)
+            @foreach ($data as $row)
             <tr>
-                <td>{{ $request->id }}</td>
-                <td>{{ $request->requested_by_name }}</td>
-                <td>
-                    {{
-                    ($request->item_type == "Supplies") ? $request->supply_item_name :
-                    $request->equipment_item_name
-                    }}
-                </td>
-                <td>{{ $request->quantity_requested }}</td>
-                <td>{{ $request->purpose }}</td>
-                <td>{{ $request->created_at }}</td>
-                <td>{{ $request->status }}</td>
-                <td>
-                    @if ($request->status == 'Pending')
-                    {{ \Carbon\Carbon::parse($request->created_at)->diffInDays(now()) }} days
-                    @else
-                    N/A
-                    @endif
-                </td>
-                <td>{{ $request->status == 'Returned' ? $request->updated_at : 'Not Returned' }}</td>
+                <td>{{ $row->equipment_item }} - {{ $row->equipment_serial_no }}</td>
+                <td>{{ $row->request_by }}</td>
+                <td>{{ $row->purpose }}</td>
+                <td>{{ $row->borrow_status }}</td>
+                <td>{{ $row->equipment_notes }}</td>
+                <td>{{ date('F d, Y h:i A', strtotime($row->date_added)) }}</td>
             </tr>
             @endforeach
+
         </tbody>
     </table>
 </body>

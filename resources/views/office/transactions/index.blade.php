@@ -34,7 +34,15 @@
                     <div class="card">
                         <div class="card-header">
                             <a class="btn btn-primary btn-sm float-right"
-                                href="{{ route('office.transaction-print') }}"> <i class="fas fa-print"></i> Print</a>
+                                href="{{ route('office.transaction-print-all') }}" id="print-all-btn">
+                                <i class="fas fa-print"></i> Print All
+                            </a>
+                            {{-- <a class="btn btn-primary btn-sm float-right mr-2 "
+                                href="{{ route('office.transaction-print') }}"> <i class="fas fa-print"></i> Print
+                                OLD</a> --}}
+                            <button class="btn btn-primary btn-sm mr-2 float-right" id="print-btn">
+                                <i class="fas fa-print"></i> Print
+                            </button>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
@@ -174,6 +182,32 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('buttons.js') }}"></script>
 <script>
+    document.getElementById("print-btn").addEventListener("click", function () {
+        let rows = [];
+        document.querySelectorAll("#example1 tbody tr").forEach((row) => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach((td) => {
+                rowData.push(td.innerText.trim());
+            });
+            rows.push(rowData);
+        });
+
+        fetch("{{ route('office.transaction-print') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            },
+            body: JSON.stringify({ data: rows, path: "equipment", title: 'OFFICE TRANSACTIONS' }),
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            let url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
     $(document).ready(function() {
             var selectedStatus = '';
             var requestId = '';

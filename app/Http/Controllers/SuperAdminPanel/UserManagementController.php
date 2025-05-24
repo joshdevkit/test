@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\SuperAdminPanel;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VerificationStatusMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 
@@ -125,5 +127,23 @@ class UserManagementController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function verifiy(User $user)
+    {
+        $user->is_verified = 1;
+        $user->save();
+        Mail::to($user->email)->send(new VerificationStatusMail($user, 'verified'));
+
+        return redirect()->back()->with('message', "{$user->name} Account has been verified.");
+    }
+
+    public function declined(User $user)
+    {
+        $user->is_declined = 1;
+        $user->save();
+        Mail::to($user->email)->send(new VerificationStatusMail($user, 'declined'));
+
+        return redirect()->back()->with('message', "{$user->name} Account has been Declined.");
     }
 }

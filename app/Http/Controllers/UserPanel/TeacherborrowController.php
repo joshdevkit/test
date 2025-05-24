@@ -253,8 +253,8 @@ class TeacherBorrowController extends Controller
         // dd($requisitions);
 
 
-        $teacherborrows = TeacherBorrow::all();
-        $notifications = Auth::user()->notifications;
+        // $teacherborrows = TeacherBorrow::all();
+        // $notifications = Auth::user()->notifications;
 
         // // dd($requisitions);
         /**
@@ -262,12 +262,29 @@ class TeacherBorrowController extends Controller
          */
         $user = Auth::user();
 
-        // // dd($requisitions);
+        // dd($requisitions);
         if ($user->hasRole('laboratory')) {
-            return view('laboratory.transaction.index', compact('teacherborrows', 'notifications', 'requisitions'));
+            return view('laboratory.transaction.index', compact('requisitions'));
         } else {
-            return view('superadmin.transactions', compact('teacherborrows', 'notifications', 'requisitions'));
+            return view('superadmin.transactions', compact('requisitions'));
         }
+    }
+
+    public function print_transaction()
+    {
+        $requisitions = Requisition::with([
+            'students',
+            'category',
+            'instructor',
+            'items.serials.equipmentBelongs',
+            'items.serials.serialRelatedItem'
+        ])
+            ->latest()
+            ->get();
+        // dd($requisitions);
+
+        $pdf = Pdf::loadView("laboratory.transaction.print", compact('requisitions'))->setPaper('A4', 'landscape');
+        return $pdf->stream('laboratory_transaction_data.pdf');
     }
 
     public function dean_index()

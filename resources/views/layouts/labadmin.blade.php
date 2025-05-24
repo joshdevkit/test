@@ -23,7 +23,34 @@
     <link rel="stylesheet" href="{{ asset('plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <!-- Theme style -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        @media (max-width: 575.98px) {
+            .main-header .nav-link i {
+                font-size: 0.9rem;
+            }
 
+            .main-header .nav-link {
+                font-size: 0.85rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .navbar-badge {
+                font-size: 0.65rem;
+                padding: 0.2em 0.35em;
+            }
+
+            /* Keep user name fully visible without ellipsis */
+            .nav-link.user-name {
+                white-space: normal;
+                /* allow wrapping if needed */
+                max-width: none;
+            }
+
+            .dropdown-menu.notification_div {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
     <link rel="stylesheet" href="{{ asset('dist/css/adminlte.min.css') }}">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 </head>
@@ -39,17 +66,17 @@
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
+            <!-- Left navbar links: pushmenu + notification -->
+            <ul class="navbar-nav align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </a>
                 </li>
 
-            </ul>
-
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
+                <li class="nav-item dropdown ml-2">
+                    <a class="nav-link position-relative" data-toggle="dropdown" href="#" aria-haspopup="true"
+                        aria-expanded="false">
                         <i class="far fa-bell"></i>
                         @php
                         $notifications = auth()->user()->unreadNotifications;
@@ -59,13 +86,11 @@
                         @endif
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right notification_div">
-                        <span class="dropdown-item dropdown-header">Notifications
-                            ({{ $notifications->count() }})</span>
+                        <span class="dropdown-item dropdown-header">Notifications ({{ $notifications->count() }})</span>
                         @forelse($notifications as $notification)
                         <div class="notification-item">
                             <a href="{{ route('borrows.show', ['id' => $notification->data['requisition_id']]) }}"
                                 class="dropdown-item mark-as-read" data-id="{{ $notification->id }}">
-                                <!-- Add data-id attribute -->
                                 <i class="fas fa-envelope mr-2"></i>
                                 {!! \Illuminate\Support\Str::limit($notification->data['activity'], 20, '...') !!} <br>
                                 @if (!empty($notification->data['instructor_name']))
@@ -77,20 +102,24 @@
                                     $notification->created_at->diffForHumans() }}</span>
                             </a>
                         </div>
-
                         @empty
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item">No new notifications</a>
                         @endforelse
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
+            </ul>
+
+            <!-- Right navbar links: user name and logout -->
+            <ul class="navbar-nav ml-auto align-items-center">
+                <li class="nav-item d-flex align-items-center">
+                    <a class="nav-link user-name" href="#">
                         <i class="fas fa-user"></i> {{ Auth::user()->name }}
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#"
+                    <a class="nav-link logout-link" href="#"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
@@ -100,8 +129,8 @@
                     @csrf
                 </form>
             </ul>
-
         </nav>
+
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->

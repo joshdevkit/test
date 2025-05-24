@@ -39,6 +39,36 @@
                     </p>
                 </div>
                 <div class="card-body">
+                    <div id="lost_damage_section" class="d-none mt-4">
+                        <h4>Lost/Damage Equipment Report</h4>
+                        <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
+                        </p>
+
+                        <div class="d-flex mb-3 mt-4">
+                            <div class="ml-auto">
+                                <button class="btn btn-info" id="btn_print_lost_damager_report">Print</button>
+                                <button class="btn btn-warning ml-2" id="btn_print_lost_damager_all">Print All</button>
+                            </div>
+                        </div>
+
+                        <p class="text-muted mt-3">You can print the current report or all available reports.</p>
+
+                        <table id="DamagedEquipmentTable" class="table table-bordered table-striped mt-5">
+                            <thead>
+                                <tr>
+                                    <th class="w-25">ITEM</th>
+                                    <th>REQUESTED BY</th>
+                                    <th>PURPOSE</th>
+                                    <th>STATUS</th>
+                                    <th>NOTES</th>
+                                    <th>DATE REQUESTED</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data_lost_damage_equipment">
+
+                            </tbody>
+                        </table>
+                    </div>
                     <div id="equipment_section" class="d-none mt-4">
                         <h4>Equipment Report</h4>
                         <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
@@ -176,13 +206,14 @@
 
             $('#equipment_report').click(function() {
                 $('#equipment_section').removeClass('d-none');
+                $('#lost_damage_section').addClass('d-none')
                 $("#supplies_section").addClass('d-none')
                 $.ajax({
                     url: '{{ route('auth.site-filter-reports') }}',
                     type: 'GET',
                     data: {
                         _token: '{{ csrf_token() }}',
-                        filterType: "equipment",
+                        filterType: "equipment_requisition_all",
                     },
                     success: function(response) {
                         console.log(response);
@@ -194,7 +225,8 @@
             });
 
             $('#lost_damage').click(function() {
-                $('#equipment_section').removeClass('d-none');
+                $('#lost_damage_section').removeClass('d-none')
+                $('#equipment_section').addClass('d-none');
                 $("#supplies_section").addClass('d-none')
                 $.ajax({
                     url: '{{ route('auth.site-filter-reports') }}',
@@ -206,11 +238,30 @@
                     success: function(response) {
                         console.log(response);
                         originalData = response;
-                        populateEquipmentTable(response);
-                        $('#equipmentTable').DataTable();
+                        loadLostDamageTable(response);
+                        $('#DamagedEquipmentTable').DataTable();
                     }
                 });
             });
+
+            function loadLostDamageTable(data) {
+                let tableBody = $('#data_lost_damage_equipment')
+                tableBody.empty();
+                console.log(data);
+                data.forEach(function(item) {
+                    let formattedDate = new Date(item.date_added).toLocaleString();
+
+                    let tableRow = `<tr>
+                                <td>Item: ${item.equipment_item} - Serial No: ${item.equipment_serial_no}</td>
+                                <td>${item.request_by}</td>
+                                <td>${item.purpose}</td>
+                                <td>${item.borrow_status}</td>
+                                <td>${item.equipment_notes ?? ''}</td>
+                                <td>${formattedDate}</td>
+                            </tr>`;
+                    tableBody.append(tableRow);
+                });
+            }
 
             $('#btn_weekly_report').click(function() {
                 $('#weekly_section').removeClass('d-none');
@@ -239,11 +290,11 @@
                     let formattedDate = new Date(item.date_added).toLocaleString();
 
                     let tableRow = `<tr>
-                                <td>Item: ${item.equipment_item} - Serial No: ${item.equipment_serial_no}</td>
+                                <td>Item: ${item.equipment_item} - Serial No: ${item.serial_numbers}</td>
                                 <td>${item.request_by}</td>
                                 <td>${item.purpose}</td>
-                                <td>${item.item_status}</td>
-                                <td>${item.equipment_notes ?? ''}</td>
+                                <td>${item.borrow_status}</td>
+                                <td>${item.notes ?? ''}</td>
                                 <td>${formattedDate}</td>
                             </tr>`;
                     tableBody.append(tableRow);
@@ -300,6 +351,7 @@
             $('#supplies_report').click(function() {
                 resetFilters();
                 $('#supplies_section').removeClass('d-none');
+                $('#lost_damage_section').addClass('d-none')
                 $('#equipment_section').addClass('d-none');
 
                 $.ajax({
@@ -376,7 +428,55 @@
             }
 
 
+            //lost damage print
+            $('#btn_print_lost_damager_report').on('click', function(){
+                let rows = [];
+                document.querySelectorAll("#DamagedEquipmentTable tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
 
+                fetch("{{ route('print-site-equipment-reports') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'SITE OFFICE LOST/DAMAGE EQUIPMENT'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
+
+            })
+
+            $('#btn_print_lost_damager_all').click(function(){
+                fetch("{{ route('siteOfficeTransactionsPrintAllDamage') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            title: 'SITE OFFICE LOST/DAMAGE EQUIPMENT'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
+            })
 
             //print EQUIPMENT REPORTS
 
@@ -410,7 +510,7 @@
             })
 
             $('#btn_print_all').on('click', function() {
-                fetch("{{ route('print-all-equipments-reports') }}", {
+                fetch("{{ route('siteOfficeTransactionsPrintAll') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -429,13 +529,7 @@
             })
 
 
-            //PRINT SUPPLIES REPORTS
-            //btn_supplies_print_report
-            //btn_supplies_print_all
-
             $('#btn_supplies_print_report').on('click', function() {
-                // var suppliesTable
-                //
                 let rows = [];
                 document.querySelectorAll("#suppliesTable tbody tr").forEach((row) => {
                     let rowData = [];
@@ -445,7 +539,7 @@
                     rows.push(rowData);
                 });
 
-                fetch("{{ route('suppliesReportPrint') }}", {
+                fetch("{{ route('suppliesReportPrintbtn') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -466,7 +560,7 @@
 
             $('#btn_supplies_print_all').on('click', function() {
                 //
-                fetch("{{ route('suppliesReportPrintAll') }}", {
+                fetch("{{ route('suppliesReportPrintAllbtn') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

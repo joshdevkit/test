@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Print {{ $title }}</title>
+    <title>Print Laboratory Transactions</title>
     <style>
         body {
             font-family: "Times New Roman", serif;
@@ -43,7 +43,6 @@
             background-color: #f2f2f2;
         }
 
-        /* HEADER STYLE */
         .header-container {
             display: flex;
             justify-content: center;
@@ -54,10 +53,9 @@
             width: 80px;
             height: 80px;
             position: absolute;
-            left: 200;
-            top: -10;
+            left: 200px;
+            top: -10px;
         }
-
 
         .school-title {
             margin-top: 20px;
@@ -87,8 +85,7 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Instructor</th>
-                <th>Item</th>
+                <th>User Name</th>
                 <th>Quantity</th>
                 <th>Purpose</th>
                 <th>Datetime Borrowed</th>
@@ -98,28 +95,32 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($requests as $request)
+            @foreach ($requisitions as $requisition)
             <tr>
-                <td>{{ $request->id }}</td>
-                <td>{{ $request->requested_by_name }}</td>
+                <td>{{ $requisition->id }}</td>
+                <td>{{ $requisition->instructor->name }}</td>
                 <td>
-                    {{
-                    ($request->item_type == "Supplies") ? $request->supply_item_name :
-                    $request->equipment_item_name
-                    }}
+                    {{ $requisition->items[0]->quantity ?? '' }}
                 </td>
-                <td>{{ $request->quantity_requested }}</td>
-                <td>{{ $request->purpose }}</td>
-                <td>{{ $request->created_at }}</td>
-                <td>{{ $request->status }}</td>
                 <td>
-                    @if ($request->status == 'Pending')
-                    {{ \Carbon\Carbon::parse($request->created_at)->diffInDays(now()) }} days
-                    @else
-                    N/A
-                    @endif
+                    {{ $requisition->activity }}
                 </td>
-                <td>{{ $request->status == 'Returned' ? $request->updated_at : 'Not Returned' }}</td>
+                <td>
+                    {{ date('F d, Y h:i A', strtotime($requisition->date_time_filed)) }}
+                </td>
+                <td>{{ $requisition->status }}
+                </td>
+                <td>
+                    {{ $requisition->status === 'Returned' ? '' :
+                    \Carbon\Carbon::parse($requisition->date_time_filed)->diffInDays(now())
+                    . ' days' }}
+
+                </td>
+
+                <td>
+                    {{ $requisition->status === 'Returned' ? date('F d, Y h:i A',
+                    strtotime($requisition->returned_date)) : '' }}
+                </td>
             </tr>
             @endforeach
         </tbody>

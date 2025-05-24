@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -20,7 +21,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+
+        $roles = Role::where('name', '!=', 'superadmin')->get();
+        return view('auth.register', compact('roles'));
     }
 
     /**
@@ -28,13 +31,16 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'exists:roles,id']
         ]);
+
+        $roleSelected = Role::find($validated['role']);
 
         $user = User::create([
             'name' => $request->name,
@@ -42,10 +48,8 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole('user');
+        $user->assignRole($roleSelected->name);
 
-        Auth::login($user);
-
-        return redirect(RouteServiceProvider::HOME);
+        return view('confirmations', compact('user'));
     }
 }
