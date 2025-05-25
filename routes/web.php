@@ -228,7 +228,6 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 
 
     Route::get('superadmin/equipment', [SEquipmentController::class, 'index'])->name('superadmin.equipment.index');
-    Route::get('superadmin/supplies', [SSuppliesController::class, 'index'])->name('superadmin.supplies.index');
     Route::resource('users', UserManagementController::class);
     Route::put('users-verify/{user}', [UserManagementController::class, 'verifiy'])->name('users-verify');
     Route::put('users-declined/{user}', [UserManagementController::class, 'declined'])->name('users-declined');
@@ -255,7 +254,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/equipment/{id}/edit', [AdminEquipmentController::class, 'edit'])->name('admin.equipment.edit');
     Route::delete('/superadmin/equipment/{id}/delete', [AdminEquipmentController::class, 'destroy'])->name('admin.equipment.destroy');
 
-
+    Route::get('superadmin/supplies', [SSuppliesController::class, 'index'])->name('superadmin.supplies.index');
     Route::get('/superadmin/supplies/create', [AdminSuppliesController::class, 'create'])->name('admin.supplies.create');
     Route::post('/superadmin/supplies/store', [AdminSuppliesController::class, 'store'])->name('admin.supplies.store');
     Route::get('/superadmin/supplies/{id}/show', [AdminSuppliesController::class, 'show'])->name('admin.supplies.show');
@@ -383,6 +382,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('admin-laboratory-equipment-print', 'adminlabEquipmentPrint')->name('admin-print-lab-equipment');
         Route::post('admin-laboratory-equipment-print-all', 'adminlabEquipmentPrintAll')->name('admin-print-lab-equipment-all');
+
+        Route::post('print-all-equipments-reports-admin', 'printAllEquipment')->name('print-all-equipments-reports-admin');
+
+        Route::post('print-all-damged-reports-admin', 'printDamaged')->name('print-all-damged-reports-admin');
+        Route::post('print-damged-reports-admin', 'printDamaged')->name('print-damged-reports-admin');
     });
 });
 
