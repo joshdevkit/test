@@ -1,96 +1,94 @@
 @extends('layouts.dean')
 
 @section('content')
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <div class="container-fluid">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class = "text-success">Surveying's List of Equipment</h1>
-                    </div>
-
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="text-success">Surveying's List of Equipment</h1>
                 </div>
-            </div><!-- /.container-fluid -->
-        </section>
 
-        <!-- Main content -->
-        <section class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
 
-                                <div class="flex float-right">
-                                    <button class="btn btn-primary btn-sm ml-2" id="print-btn">
-                                        <i class="fas fa-print"></i> Print
-                                    </button>
-                                    <button class="btn btn-primary btn-sm ml-2" id="print-all-btn">
-                                        <i class="fas fa-print"></i> Print All
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <table id="example1" class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>No.</th>
-                                            <th>Equipment</th>
-                                            <th>Description</th>
-                                            <th>Brand</th>
-                                            <th>Quantity</th>
-                                            <th>Unit</th>
-                                            <th>Condition</th>
-                                            <th>Date Acquired</th>
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($surveyings as $surveying)
-                                            <tr data-entry-id="{{ $surveying->id }}">
-
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $surveying->equipment }}</td>
-                                                <td>{{ $surveying->description }}</td>
-                                                <td>{{ $surveying->brand }}</td>
-                                                <td>{{ $surveying->items->count() }}</td>
-                                                <td>{{ $surveying->unit }}</td>
-                                                <td>{{ $surveying->condition }}</td>
-                                                <td>{{ $surveying->date_acquired }}</td>
-                                        @endforeach
-                                    </tbody>
-
-                                </table>
-
+                            <div class="flex float-right">
+                                <button class="btn btn-primary btn-sm ml-2" id="print-btn">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                                <button class="btn btn-primary btn-sm ml-2" id="print-all-btn">
+                                    <i class="fas fa-print"></i> Print All
+                                </button>
                             </div>
                         </div>
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Equipment</th>
+                                        <th>Description</th>
+                                        <th>Brand</th>
+                                        <th>Quantity</th>
+                                        <th>Unit</th>
+                                        <th>Date Acquired</th>
 
-                        <!-- /.card-header -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($surveyings as $surveying)
+                                    <tr data-entry-id="{{ $surveying->id }}">
 
-                        <!-- /.card-body -->
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $surveying->equipment }}</td>
+                                        <td>{{ $surveying->description }}</td>
+                                        <td>{{ $surveying->brand }}</td>
+                                        <td>{{ $surveying->items->count() }}</td>
+                                        <td>{{ $surveying->unit }}</td>
+                                        <td>{{ $surveying->date_acquired }}</td>
+                                        @endforeach
+                                </tbody>
+
+                            </table>
+
+                        </div>
                     </div>
-                    <!-- /.card -->
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
 
-    </section>
-    <!-- /.content -->
-    </div>
+                    <!-- /.card-header -->
+
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+</div>
+<!-- /.container-fluid -->
+
+</section>
+<!-- /.content -->
+</div>
 @endsection
 @section('scripts')
 <script>
@@ -139,5 +137,3 @@
 </script>
 
 @endsection
-
-

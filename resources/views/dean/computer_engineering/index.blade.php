@@ -32,15 +32,12 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm float-right ml-2" id="print-btn">
-                                <i class="fas fa-print"></i> Print
-                            </button>
-                            <button class="btn btn-primary btn-sm float-right" id="print-all-btn">
+                            <button class="btn btn-primary btn-sm float-right ml-2" id="print-all-btn">
                                 <i class="fas fa-print"></i> Print All
                             </button>
-                            <!-- /.card-header -->
-
-                            <!-- /.card-body -->
+                            <button class="btn btn-primary btn-sm float-right" id="print-btn">
+                                <i class="fas fa-print"></i> Print
+                            </button>
                         </div>
                         <div class="card-body">
                             <table id="example1" class="table table-bordered table-striped for_printall">
@@ -51,7 +48,6 @@
                                         <th>Brand</th>
                                         <th>Quantity</th>
                                         <th>Unit</th>
-                                        <th>Condition</th>
                                         <th>Date Acquired</th>
 
                                     </tr>
@@ -65,7 +61,6 @@
                                         <td>{{ $computer->brand }}</td>
                                         <td>{{ $computer->items->count() }}</td>
                                         <td>{{ $computer->unit }}</td>
-                                        <td>{{ $computer->condition }}</td>
                                         <td>{{ $computer->date_acquired }}</td>
 
                                         </td>

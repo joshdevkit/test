@@ -41,7 +41,7 @@
                 </div>
                 <div class="card-body">
                     <div id="equipment_section" class="d-none mt-4">
-                        <h4>Equipment Report</h4>
+                        <h4>Lost/Damage Equipment Report</h4>
                         <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
                         </p>
 
@@ -166,6 +166,9 @@
                     </div>
 
                     <div id="transaction_equipment" class="d-none mt-4">
+                        <h4>Transaction Equipment Report</h4>
+                        <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
+                        </p>
                         <div class="d-flex mb-3 mt-4">
                             <div class="ml-auto">
                                 <button class="btn btn-info" id="btn_transaction_print_report">Print</button>

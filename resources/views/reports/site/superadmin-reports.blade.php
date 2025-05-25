@@ -256,7 +256,7 @@
                                 <td>Item: ${item.equipment_item} - Serial No: ${item.equipment_serial_no}</td>
                                 <td>${item.request_by}</td>
                                 <td>${item.purpose}</td>
-                                <td>${item.borrow_status}</td>
+                                <td>${item.item_status}</td>
                                 <td>${item.equipment_notes ?? ''}</td>
                                 <td>${formattedDate}</td>
                             </tr>`;
@@ -426,11 +426,7 @@
                 populateSuppliesTable(filteredData);
             }
 
-
-
-
             //print EQUIPMENT REPORTS
-
             $('#btn_print_report').on('click', function() {
                 let rows = [];
                 document.querySelectorAll("#equipmentTable tbody tr").forEach((row) => {
@@ -461,14 +457,25 @@
             })
 
             $('#btn_print_all').on('click', function() {
-                fetch("{{ route('print-all-equipments-reports') }}", {
+                let rows = [];
+                document.querySelectorAll("#equipmentTable tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
+
+
+                fetch("{{ route('print-all-equipments-reports-admin') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
                         },
                         body: JSON.stringify({
-                            title: 'SITE OFFICE EQUIPMENT'
+                            data: rows,
+                            title: 'SITE OFFICE EQUIPMENT REPORTS'
                         }),
                     })
                     .then(response => response.blob())
@@ -479,6 +486,76 @@
                     .catch(error => console.error("Error:", error));
             })
 
+            //LOST
+            $('#btn_print_lost_damager_report').click(function(){
+                let rows = [];
+                document.querySelectorAll("#DamagedEquipmentTable tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
+
+                fetch("{{ route('print-all-damged-reports-admin') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'SITE OFFICE LOST/DAMAGED EQUIPMENT REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
+            })
+
+            $('#btn_print_lost_damager_all').click(() => {
+                const table = $('#DamagedEquipmentTable').DataTable();
+
+                const currentPageLength = table.page.len();
+
+                table.page.len(-1).draw();
+
+                setTimeout(() => {
+                    let rows = [];
+                    document.querySelectorAll("#DamagedEquipmentTable tbody tr").forEach((row) => {
+                        let rowData = [];
+                        row.querySelectorAll("td").forEach((td) => {
+                            rowData.push(td.innerText.trim());
+                        });
+                        rows.push(rowData);
+                    });
+
+                    fetch("{{ route('print-damged-reports-admin') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'SITE OFFICE LOST/DAMAGED EQUIPMENT REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error))
+                    .finally(() => {
+
+                        table.page.len(currentPageLength).draw();
+                    });
+                }, 500);
+            });
 
             //PRINT SUPPLIES REPORTS
             //btn_supplies_print_report
