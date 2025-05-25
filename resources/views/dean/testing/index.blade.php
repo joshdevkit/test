@@ -53,7 +53,6 @@
                                         <th>Brand</th>
                                         <th>Quantity</th>
                                         <th>Unit</th>
-                                        <th>Condition</th>
                                         <th>Date Acquired</th>
 
                                     </tr>
@@ -68,7 +67,6 @@
                                         <td>{{ $testing->brand }}</td>
                                         <td>{{ $testing->items->count() }}</td>
                                         <td>{{ $testing->unit }}</td>
-                                        <td>{{ $testing->condition }}</td>
                                         <td>{{ $testing->date_acquired }}</td>
                                         @endforeach
 

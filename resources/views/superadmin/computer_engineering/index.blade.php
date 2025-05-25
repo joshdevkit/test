@@ -56,7 +56,6 @@
                                         <th>Brand</th>
                                         <th>Quantity</th>
                                         <th>Unit</th>
-                                        <th>Condition</th>
                                         <th>Date Acquired</th>
                                         <th>Action</th>
                                     </tr>
@@ -70,7 +69,6 @@
                                         <td>{{ $computer->brand }}</td>
                                         <td>{{ $computer->quantity }}</td>
                                         <td>{{ $computer->unit }}</td>
-                                        <td>{{ $computer->condition }}</td>
                                         <td>{{ $computer->date_acquired }}</td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">

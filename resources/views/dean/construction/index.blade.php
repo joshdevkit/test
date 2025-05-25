@@ -1,95 +1,93 @@
 @extends('layouts.dean')
 
 @section('content')
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <div class="container-fluid">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class = "text-success">General Construction's List of Equipment</h1>
-                    </div>
-
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="text-success">General Construction's List of Equipment</h1>
                 </div>
-            </div><!-- /.container-fluid -->
-        </section>
 
-        <!-- Main content -->
-        <section class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
 
-                                <div class="flex float-right">
-                                    <button class="btn btn-primary btn-sm ml-2" id="print-btn">
-                                        <i class="fas fa-print"></i> Print
-                                    </button>
-                                    <button class="btn btn-primary btn-sm ml-2" id="print-all-btn">
-                                        <i class="fas fa-print"></i> Print All
-                                    </button>
-                                </div>
-                            </div>
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
 
-                            <div class="card-body">
-                                <table id="example1" class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>No.</th>
-                                            <th>Equipment</th>
-                                            <th>Brand</th>
-                                            <th>Quantity</th>
-                                            <th>Unit</th>
-                                            <th>Condition</th>
-                                            <th>Date Acquired</th>
-
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($constructions as $construction)
-                                            <tr data-entry-id="{{ $construction->id }}">
-
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $construction->equipment }}</td>
-                                                <td>{{ $construction->brand }}</td>
-                                                <td>{{ $construction->items->count() }}</td>
-                                                <td>{{ $construction->unit }}</td>
-                                                <td>{{ $construction->condition }}</td>
-                                                <td>{{ $construction->date_acquired }}</td>
-                                        @endforeach
-
-                                    </tbody>
-
-                                </table>
-
+                            <div class="flex float-right">
+                                <button class="btn btn-primary btn-sm ml-2" id="print-btn">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                                <button class="btn btn-primary btn-sm ml-2" id="print-all-btn">
+                                    <i class="fas fa-print"></i> Print All
+                                </button>
                             </div>
                         </div>
-                        <!-- /.card-header -->
 
-                        <!-- /.card-body -->
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Equipment</th>
+                                        <th>Brand</th>
+                                        <th>Quantity</th>
+                                        <th>Unit</th>
+                                        <th>Date Acquired</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($constructions as $construction)
+                                    <tr data-entry-id="{{ $construction->id }}">
+
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $construction->equipment }}</td>
+                                        <td>{{ $construction->brand }}</td>
+                                        <td>{{ $construction->items->count() }}</td>
+                                        <td>{{ $construction->unit }}</td>
+                                        <td>{{ $construction->date_acquired }}</td>
+                                        @endforeach
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
                     </div>
-                    <!-- /.card -->
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
+                    <!-- /.card-header -->
 
-    </section>
-    <!-- /.content -->
-    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+</div>
+<!-- /.container-fluid -->
+
+</section>
+<!-- /.content -->
+</div>
 @endsection
 
 @section('scripts')
@@ -139,4 +137,3 @@
 </script>
 
 @endsection
-

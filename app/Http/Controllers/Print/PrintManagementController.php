@@ -96,6 +96,10 @@ class PrintManagementController extends Controller
                 'message' => 'No valid data available to generate PDF.',
             ], 422));
         }
+        if (auth()->user()->hasRole('superadmin')) {
+            $pdf = Pdf::loadView("office.{$path}.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+            return $pdf->stream('visible_equipment.pdf');
+        }
         $pdf = Pdf::loadView("{$viewPath}.{$path}.print", compact('data', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('visible_equipment.pdf');
     }
@@ -123,6 +127,10 @@ class PrintManagementController extends Controller
                 'message' => 'No valid data available to generate PDF.',
             ], 422));
         }
+        if (auth()->user()->hasRole('superadmin')) {
+            $pdf = Pdf::loadView("office.{$path}.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+            return $pdf->stream('visible_equipment.pdf');
+        }
 
         $pdf = Pdf::loadView("{$viewPath}.{$path}.print-all", ['data' => $data, 'title' => $title])->setPaper('A4', 'landscape');
         return $pdf->stream('full_inventory_report.pdf');
@@ -139,6 +147,10 @@ class PrintManagementController extends Controller
             throw new HttpResponseException(response()->json([
                 'message' => 'No valid data available to generate PDF.',
             ], 422));
+        }
+        if (auth()->user()->hasRole('superadmin')) {
+            $pdf = Pdf::loadView("office.{$path}.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+            return $pdf->stream('visible_equipment.pdf');
         }
         $pdf = Pdf::loadView("{$viewPath}.{$path}.print", compact('data', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('visible_equipment.pdf');
@@ -167,6 +179,12 @@ class PrintManagementController extends Controller
                 'message' => 'No valid data available to generate PDF.',
             ], 422));
         }
+
+        if (auth()->user()->hasRole('superadmin')) {
+            $pdf = Pdf::loadView("office.{$path}.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+            return $pdf->stream('visible_equipment.pdf');
+        }
+
         $pdf = Pdf::loadView("{$viewPath}.{$path}.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('visible_equipment.pdf');
     }
@@ -189,32 +207,11 @@ class PrintManagementController extends Controller
     public function AllSiteEquipmentReports(Request $request)
     {
         $title = $request->input('title');
-        $items = OfficeRequest::select(
-            'office_requests.*',
-            'borrowed_equipment.office_requests_id',
-            'borrowed_equipment.borrow_status',
-            'equipment.item as equipment_item',
-            'equipment_items.serial_no as equipment_serial_no',
-            'equipment_items.note as equipment_notes',
-            'borrowed_equipment.date_returned',
-            'borrowed_equipment.item_id',
-            'borrowed_equipment.equipment_serial_id',
-            'equipment_items.equipment_id',
-            'equipment_items.status as item_status',
-            'equipment.*',
-            'users.name as request_by',
-            'office_requests.created_at as date_added'
-        )
-            ->leftJoin('borrowed_equipment', 'office_requests.id', '=', 'borrowed_equipment.office_requests_id')
-            ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
-            ->leftJoin('equipment', 'equipment_items.equipment_id', '=', 'equipment.id')
-            ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
-            ->where('office_requests.item_type', 'Equipments')
-            ->where('equipment_items.status', 'Damaged')
-            ->get();
-
-        foreach ($items as $index => $item) {
-            $item->serial_no_count = $index + 1;
+        $items = $request->input('data');
+        if (empty($data)) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
         }
 
 
@@ -697,6 +694,50 @@ class PrintManagementController extends Controller
         $title = $request->input('title');
 
         $pdf = Pdf::loadView("reports.admin.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+
+    public function printAllEquipment(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.admin.print-all-equipment", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function printDamaged(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.admin.print-lost", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+
+    public function printAllDamaged(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.admin.print-lost", compact('data', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('dean_laboratory_transaction.pdf');
     }
 }
