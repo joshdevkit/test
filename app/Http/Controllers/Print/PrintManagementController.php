@@ -73,6 +73,7 @@ class PrintManagementController extends Controller
         });
 
 
+
         if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
             throw new HttpResponseException(response()->json([
                 'message' => 'No valid data available to generate PDF.',
@@ -188,30 +189,36 @@ class PrintManagementController extends Controller
     public function AllSiteEquipmentReports(Request $request)
     {
         $title = $request->input('title');
-        $items =  OfficeRequest::selectRaw('
-                office_requests.id,
-                MAX(users.name) as request_by,
-                MAX(equipment.item) as equipment_item,
-                GROUP_CONCAT(equipment_items.serial_no) as serial_numbers,
-                MAX(office_requests.quantity_requested) as quantity_requested,
-                MAX(office_requests.purpose) as purpose,
-                MAX(office_requests.created_at) as date_added
-            ')
+        $items = OfficeRequest::select(
+            'office_requests.*',
+            'borrowed_equipment.office_requests_id',
+            'borrowed_equipment.borrow_status',
+            'equipment.item as equipment_item',
+            'equipment_items.serial_no as equipment_serial_no',
+            'equipment_items.note as equipment_notes',
+            'borrowed_equipment.date_returned',
+            'borrowed_equipment.item_id',
+            'borrowed_equipment.equipment_serial_id',
+            'equipment_items.equipment_id',
+            'equipment_items.status as item_status',
+            'equipment.*',
+            'users.name as request_by',
+            'office_requests.created_at as date_added'
+        )
             ->leftJoin('borrowed_equipment', 'office_requests.id', '=', 'borrowed_equipment.office_requests_id')
             ->leftJoin('equipment_items', 'borrowed_equipment.equipment_serial_id', '=', 'equipment_items.id')
             ->leftJoin('equipment', 'equipment_items.equipment_id', '=', 'equipment.id')
             ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
             ->where('office_requests.item_type', 'Equipments')
-            ->groupBy('office_requests.id')
+            ->where('equipment_items.status', 'Damaged')
             ->get();
-        dd($items);
-        if (empty($items)) {
-            throw new HttpResponseException(response()->json([
-                'message' => 'No valid data available to generate PDF.',
-            ], 422));
+
+        foreach ($items as $index => $item) {
+            $item->serial_no_count = $index + 1;
         }
 
-        $pdf = Pdf::loadView("reports.print-all", compact('items', 'title'))->setPaper('A4', 'landscape');
+
+        $pdf = Pdf::loadView("reports.site.print-all-damage", compact('items', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('visible_equipment.pdf');
     }
 
@@ -419,6 +426,34 @@ class PrintManagementController extends Controller
         return $pdf->stream('requisition_report.pdf');
     }
 
+    public function suppliesReportPrint(Request $request)
+    {
+        $title = $request->input('title');
+        $items = OfficeRequest::select(
+            'office_requests.*',
+            'supplies.item',
+            'office_requests.created_at as date_added',
+            'users.name as request_by',
+        )
+            ->leftJoin('supplies', 'office_requests.item_id', '=', 'supplies.id')
+            ->leftJoin('users', 'office_requests.requested_by', '=', 'users.id')
+            ->where('office_requests.item_type', 'Supplies')
+            ->get();
+        $data = $items->map(function ($item) {
+            return [
+                $item->item,
+                $item->quantity_requested,
+                $item->request_by,
+                $item->purpose,
+                date('F d, Y h:i A', strtotime($item->created_at))
+            ];
+        });
+
+
+        $pdf = Pdf::loadView("reports.site.print.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('requisition_report.pdf');
+    }
+
 
     public function suppliesReportPrintAll(Request $request)
     {
@@ -461,5 +496,207 @@ class PrintManagementController extends Controller
 
         $pdf = Pdf::loadView("reports.site.print.print", compact('data', 'title'))->setPaper('A4', 'landscape');
         return $pdf->stream('requisition_report.pdf');
+    }
+
+
+    public function labTransacPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.laboratory.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('requisition_report.pdf');
+    }
+
+    public function labTransacPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.laboratory.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('requisition_report.pdf');
+    }
+
+
+    public function labFluidPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.laboratory.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('requisition_report.pdf');
+    }
+
+    public function  labFluidPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.laboratory.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('requisition_report.pdf');
+    }
+
+    public function deanlabTransacPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.dean.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function deanlabTransacPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.dean.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+
+    public function deanlabEquipmentPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.equipment-print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function deanlabEquipmentPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.equipment-print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function printRequisitionReport(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.requisition-print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function printRequisitionReportAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.requisition-print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+
+    public function deanSuppliesPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.supplies-print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_office_supplies.pdf');
+    }
+
+    public function deanSuppliesPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("dean.print.supplies-print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_office_supplies.pdf');
+    }
+
+
+
+    public function adminlabEquipmentPrint(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.admin.print", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
+    }
+
+    public function adminlabEquipmentPrintAll(Request $request)
+    {
+        $data =  $request->input('data');
+        if (empty($data) || !isset($data[0][0]) || $data[0][0] === "No data available in table") {
+            throw new HttpResponseException(response()->json([
+                'message' => 'No valid data available to generate PDF.',
+            ], 422));
+        }
+        $title = $request->input('title');
+
+        $pdf = Pdf::loadView("reports.admin.print-all", compact('data', 'title'))->setPaper('A4', 'landscape');
+        return $pdf->stream('dean_laboratory_transaction.pdf');
     }
 }

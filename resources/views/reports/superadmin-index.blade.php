@@ -1,192 +1,192 @@
 @extends('layouts.superadmin')
 
 @section('content')
-    <div class="content-wrapper">
-        <section class="content-header">
-            <div class="container-fluid">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="text-success">Reports</h1>
-                    </div>
-                    <div class="col-sm-6 text-right">
-                        <p class="text-muted">Select a report type to view detailed information.</p>
-                    </div>
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="text-success">Reports</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <p class="text-muted">Select a report type to view detailed information.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="content">
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-header">
-                        <!-- Buttons to choose report -->
-                        <div class="btn-group" role="group" aria-label="Report options">
-                            <button type="button" class="btn btn-primary" id="btn_lost_damaged_report">Lost/Damaged
-                                Equipment Report</button>
-                            <button type="button" class="btn btn-secondary" id="btn_requisition_report">Requisition
-                                Report</button>
-                        </div>
-                        <p class="text-muted mt-4">Choose an action whether Lost/Damaged Items from requisitions report or
-                            All Requisitions.
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <!-- Buttons to choose report -->
+                    <div class="btn-group" role="group" aria-label="Report options">
+                        <button type="button" class="btn btn-primary" id="btn_lost_damaged_report">Lost/Damaged
+                            Equipment Report</button>
+                        <button type="button" class="btn btn-secondary" id="btn_requisition_report">Requisition
+                            Report</button>
+                    </div>
+                    <p class="text-muted mt-4">Choose an action whether Lost/Damaged Items from requisitions report or
+                        All Requisitions.
+                    </p>
+                </div>
+                <div class="card-body">
+                    <!-- Lost/Damaged Equipment Report Section -->
+                    <div id="lost_damaged_report_section" class="d-none mt-4">
+                        <h4>Lost/Damaged Equipment Report</h4>
+                        <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
                         </p>
-                    </div>
-                    <div class="card-body">
-                        <!-- Lost/Damaged Equipment Report Section -->
-                        <div id="lost_damaged_report_section" class="d-none mt-4">
-                            <h4>Lost/Damaged Equipment Report</h4>
-                            <p class="text-muted">Choose a reporting period and specify the dates to generate the report.
-                            </p>
 
-                            <!-- Action buttons -->
-                            <div class="d-flex mb-3 mt-4">
-                                <button class="btn btn-success" id="btn_weekly_report">Weekly</button>
-                                <button class="btn btn-info mx-2" id="btn_monthly_report">Monthly</button>
-                                <div class="ml-auto">
-                                    <button class="btn btn-info" id="btn_print_report">Print</button>
-                                    <button class="btn btn-warning ml-2" id="btn_print_all">Print All</button>
-                                </div>
+                        <!-- Action buttons -->
+                        <div class="d-flex mb-3 mt-4">
+                            <button class="btn btn-success" id="btn_weekly_report">Weekly</button>
+                            <button class="btn btn-info mx-2" id="btn_monthly_report">Monthly</button>
+                            <div class="ml-auto">
+                                <button class="btn btn-info" id="btn_print_report">Print</button>
+                                <button class="btn btn-warning ml-2" id="btn_print_all">Print All</button>
                             </div>
-                            <p class="text-muted mt-3">You can print the current report or all available reports.</p>
+                        </div>
+                        <p class="text-muted mt-3">You can print the current report or all available reports.</p>
 
-                            <!-- Date selection -->
-                            <div id="weekly_section" class="d-none mb-3 row align-items-center">
-                                <div class="col-auto">
-                                    <label>From:</label>
-                                    <input type="date" class="form-control" id="weekly_from">
-                                </div>
-                                <div class="col-auto">
-                                    <label>To:</label>
-                                    <input type="date" class="form-control" id="weekly_to">
-                                </div>
+                        <!-- Date selection -->
+                        <div id="weekly_section" class="d-none mb-3 row align-items-center">
+                            <div class="col-auto">
+                                <label>From:</label>
+                                <input type="date" class="form-control" id="weekly_from">
                             </div>
-
-                            <div id="monthly_section" class="d-none mb-3">
-                                <label>Select Month:</label>
-                                <select class="form-control" id="monthly_select">
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
+                            <div class="col-auto">
+                                <label>To:</label>
+                                <input type="date" class="form-control" id="weekly_to">
                             </div>
-
-
-
-                            <!-- Report table -->
-                            <table id="example1Reports" class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Equipment Name</th>
-                                        <th>Category</th>
-                                        <th>Status</th>
-                                        <th>Notes</th>
-                                        <th>Date Reported</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="data_tbody">
-
-                                </tbody>
-                            </table>
-
-
                         </div>
 
-                        <!-- Requisition Report Section -->
-                        <div id="requisition_report_section" class="d-none mt-4">
-                            <h4>Requisition Report</h4>
-                            <p class="text-muted">Select a reporting option to view the requisition report.</p>
-
-                            <div class="d-flex mb-3 mt-4">
-                                <button type="button" class="btn btn-success"
-                                    id="btn_weekly_requisition_report">Weekly</button>
-                                <button type="button" class="btn btn-info mx-2"
-                                    id="btn_monthly_requisition_report">Monthly</button>
-                                <div class="ml-auto">
-                                    <button type="button" class="btn btn-info"
-                                        id="btn_print_requisition_report">Print</button>
-                                    <button type="button" class="btn btn-warning ml-2" id="btn_print_requisition_all">Print
-                                        All</button>
-                                </div>
-                            </div>
-                            <p class="text-muted mt-3">You can print the current report or all available reports.</p>
-
-                            <!-- Date selection -->
-                            <div id="weekly_requisition_section" class="d-none mb-3 row align-items-center">
-                                <div class="col-auto">
-                                    <label>From:</label>
-                                    <input type="date" class="form-control" id="weekly_requisition_from">
-                                </div>
-                                <div class="col-auto">
-                                    <label>To:</label>
-                                    <input type="date" class="form-control" id="weekly_requisiton_to">
-                                </div>
-                            </div>
-
-                            <div id="monthly_requisition_section" class="d-none mb-3">
-                                <label>Select Month:</label>
-                                <select class="form-control" id="monthly_requisition_select">
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-
-                            <table id="requisition_table" class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Activity</th>
-                                        <th>Category</th>
-                                        <th>Equipment/Item/Serials</th>
-                                        <th>Course Year</th>
-                                        <th>Instructor</th>
-                                        <th>Students</th>
-                                        <th>Status</th>
-                                        <th>Subject</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="requisition_tbody">
-                                </tbody>
-                            </table>
+                        <div id="monthly_section" class="d-none mb-3">
+                            <label>Select Month:</label>
+                            <select class="form-control" id="monthly_select">
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
                         </div>
 
+
+
+                        <!-- Report table -->
+                        <table id="example1Reports" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Equipment Name</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                    <th>Date Reported</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data_tbody">
+
+                            </tbody>
+                        </table>
+
+
                     </div>
+
+                    <!-- Requisition Report Section -->
+                    <div id="requisition_report_section" class="d-none mt-4">
+                        <h4>Requisition Report</h4>
+                        <p class="text-muted">Select a reporting option to view the requisition report.</p>
+
+                        <div class="d-flex mb-3 mt-4">
+                            <button type="button" class="btn btn-success"
+                                id="btn_weekly_requisition_report">Weekly</button>
+                            <button type="button" class="btn btn-info mx-2"
+                                id="btn_monthly_requisition_report">Monthly</button>
+                            <div class="ml-auto">
+                                <button type="button" class="btn btn-info"
+                                    id="btn_print_requisition_report">Print</button>
+                                <button type="button" class="btn btn-warning ml-2" id="btn_print_requisition_all">Print
+                                    All</button>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">You can print the current report or all available reports.</p>
+
+                        <!-- Date selection -->
+                        <div id="weekly_requisition_section" class="d-none mb-3 row align-items-center">
+                            <div class="col-auto">
+                                <label>From:</label>
+                                <input type="date" class="form-control" id="weekly_requisition_from">
+                            </div>
+                            <div class="col-auto">
+                                <label>To:</label>
+                                <input type="date" class="form-control" id="weekly_requisiton_to">
+                            </div>
+                        </div>
+
+                        <div id="monthly_requisition_section" class="d-none mb-3">
+                            <label>Select Month:</label>
+                            <select class="form-control" id="monthly_requisition_select">
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+
+                        <table id="requisition_table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Category</th>
+                                    <th>Equipment/Item/Serials</th>
+                                    <th>Course Year</th>
+                                    <th>Instructor</th>
+                                    <th>Students</th>
+                                    <th>Status</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requisition_tbody">
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
 @endsection
 
 @section('scripts')
-    <script>
-        $(document).ready(function() {
+<script>
+    $(document).ready(function() {
             let originalData = [];
 
             $('#btn_lost_damaged_report').click(function() {
@@ -452,483 +452,106 @@
 
 
             //print lost_damaged
-
             $('#btn_print_report').on('click', function() {
-                let dataTable = document.querySelector('#example1Reports').cloneNode(true);
-                let theadRow = dataTable.querySelector('thead tr');
-                let tbodyRows = dataTable.querySelectorAll('tbody tr');
+                let rows = [];
+                document.querySelectorAll("#example1Reports tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
 
-                let printWindow = window.open('', '', 'width=1200,height=1200');
-
-                printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Print Data</title>
-                    <style>
-                        @media print {
-                    @page {
-                        size: landscape;
-                        margin: 1cm;
-                    }
-
-                    body {
-                        font-family: "Times New Roman", serif;
-                    }
-
-                    h1,
-                    h2,
-                    h3 {
-                        text-align: center;
-                    }
-
-                    h1 {
-                        font-family: "Old English Text MT", serif;
-                    }
-
-                    h2 {
-                        font-weight: bold;
-                        text-transform: uppercase;
-                    }
-
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }
-
-                    table th,
-                    table td {
-                        border: 1px solid black;
-                        padding: 5px;
-                        text-align: left;
-                        font-size: 12px;
-                    }
-
-                    table th {
-                        background-color: #f2f2f2;
-                    }
-                }
-
-                .header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 20px;
-                }
-
-                .header img {
-                    width: 80px;
-                    height: 80px;
-                    margin-right: 10px;
-                }
-
-                .header-content {
-                    text-align: center;
-                }
-
-                .header-content h1 {
-                    font-weight: normal;
-                    font-family: "Old English Text MT", serif;
-                    margin: 0;
-                }
-
-                .header-content h3 {
-                    font-family: "Times New Roman", serif;
-                    margin: 0;
-                }
-
-                .school-title {
-                    text-align: center;
-                    margin-bottom: 20px;
-                }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <img src="{{ asset('dist/img/spup1.png') }}" alt="Logo">
-                        <div class="header-content">
-                            <h1>Saint Paul University Philippines</h1>
-                            <h3>Tuguegarao City, Cagayan 3500</h3>
-                        </div>
-                    </div>
-
-                    <div class="school-title">
-                        <h4>SCHOOL OF INFORMATION TECHNOLOGY AND ENGINEERING</h4>
-                        <h5><strong>LABORATORY TRANSACTION</strong></h5>
-                    </div>
-                    ${dataTable.outerHTML}
-                </body>
-                </html>
-            `);
-                printWindow.document.close();
-
-                printWindow.onload = function() {
-                    printWindow.print();
-                    printWindow.close();
-                };
+                fetch("{{ route('print-lab-report') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'LABORATORY REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
             })
+
 
             $('#btn_print_all').on('click', function() {
-                // Check if the DataTable is initialized
-                var table = $('#example1Reports').DataTable();
-
-                if (table) {
-                    // Destroy the DataTable instance before printing
-                    table.destroy();
-                }
-
-                // Now remove the 'id' and any other DataTable related properties
-                var tableElement = $('#example1Reports'); // Get the table element itself
-                tableElement.removeAttr('id').removeClass('dataTable');
-
-                // Clone the table (without DataTable functionalities)
-                var dataTableClone = tableElement.clone(true,
-                    true); // Clone with all child elements and events
-
-                // Remove the last child of the header row
-                let theadRow = dataTableClone.find('thead tr'); // Get the header row from the cloned table
-
-                // Remove the last child from each row in the tbody
-                let tbodyRows = dataTableClone.find(
-                    'tbody tr'); // Get all rows from the tbody of the cloned table
-                // Open a new window for printing
-                var printWindow = window.open('', '', 'width=1200,height=1200');
-
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>Print Data</title>
-                            <style>
-                                @media print {
-                                    @page {
-                                        size: landscape;
-                                        margin: 1cm;
-                                    }
-                                    body {
-                                        font-family: "Times New Roman", serif;
-                                    }
-                                    h1, h2, h3 {
-                                        text-align: center;
-                                    }
-                                    h1 {
-                                        font-family: "Old English Text MT", serif;
-                                    }
-                                    h2 {
-                                        font-weight: bold;
-                                        text-transform: uppercase;
-                                    }
-                                    table {
-                                        width: 100%;
-                                        border-collapse: collapse;
-                                        margin-top: 20px;
-                                    }
-                                    table th, table td {
-                                        border: 1px solid black;
-                                        padding: 5px;
-                                        text-align: left;
-                                        font-size: 12px;
-                                    }
-                                    table th {
-                                        background-color: #f2f2f2;
-                                    }
-                                }
-                                .header {
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    margin-bottom: 20px;
-                                }
-                                .header img {
-                                    width: 80px;
-                                    height: 80px;
-                                    margin-right: 10px;
-                                }
-                                .header-content {
-                                    text-align: center;
-                                }
-                                .header-content h1 {
-                                    font-weight: normal;
-                                    font-family: "Old English Text MT", serif;
-                                    margin: 0;
-                                }
-                                .header-content h3 {
-                                    font-family: "Times New Roman", serif;
-                                    margin: 0;
-                                }
-                                .school-title {
-                                    text-align: center;
-                                    margin-bottom: 20px;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="header">
-                                <img src="{{ asset('dist/img/spup1.png') }}" alt="Logo">
-                                <div class="header-content">
-                                    <h1>Saint Paul University Philippines</h1>
-                                    <h3>Tuguegarao City, Cagayan 3500</h3>
-                                </div>
-                            </div>
-
-                            <div class="school-title">
-                                <h4>SCHOOL OF INFORMATION TECHNOLOGY AND ENGINEERING</h4>
-                                <h5><strong>LABORATORY TRANSACTIONS</strong></h5>
-                            </div>
-                            ${dataTableClone[0].outerHTML} <!-- Add cloned table -->
-                        </body>
-                    </html>
-                `);
-
-                printWindow.document.close();
-
-                // Delay print to ensure content is fully rendered
-                printWindow.onload = function() {
-                    setTimeout(function() {
-                        printWindow.print();
-                        printWindow.close();
-                    }, 500);
-                };
+                fetch("{{ route('print-Alllab-report') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            title: 'LABORATORY REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
             })
 
 
-            //requisition
             $('#btn_print_requisition_report').on('click', function() {
-                let dataTable = document.querySelector('#requisition_table').cloneNode(true);
-                let theadRow = dataTable.querySelector('thead tr');
-                let tbodyRows = dataTable.querySelectorAll('tbody tr');
+                let rows = [];
+                document.querySelectorAll("#requisition_table tbody tr").forEach((row) => {
+                    let rowData = [];
+                    row.querySelectorAll("td").forEach((td) => {
+                        rowData.push(td.innerText.trim());
+                    });
+                    rows.push(rowData);
+                });
 
-                let printWindow = window.open('', '', 'width=1200,height=1200');
-
-                printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Print Data</title>
-                    <style>
-                        @media print {
-                    @page {
-                        size: landscape;
-                        margin: 1cm;
-                    }
-
-                    body {
-                        font-family: "Times New Roman", serif;
-                    }
-
-                    h1,
-                    h2,
-                    h3 {
-                        text-align: center;
-                    }
-
-                    h1 {
-                        font-family: "Old English Text MT", serif;
-                    }
-
-                    h2 {
-                        font-weight: bold;
-                        text-transform: uppercase;
-                    }
-
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }
-
-                    table th,
-                    table td {
-                        border: 1px solid black;
-                        padding: 5px;
-                        text-align: left;
-                        font-size: 12px;
-                    }
-
-                    table th {
-                        background-color: #f2f2f2;
-                    }
-                }
-
-                .header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 20px;
-                }
-
-                .header img {
-                    width: 80px;
-                    height: 80px;
-                    margin-right: 10px;
-                }
-
-                .header-content {
-                    text-align: center;
-                }
-
-                .header-content h1 {
-                    font-weight: normal;
-                    font-family: "Old English Text MT", serif;
-                    margin: 0;
-                }
-
-                .header-content h3 {
-                    font-family: "Times New Roman", serif;
-                    margin: 0;
-                }
-
-                .school-title {
-                    text-align: center;
-                    margin-bottom: 20px;
-                }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <img src="{{ asset('dist/img/spup1.png') }}" alt="Logo">
-                        <div class="header-content">
-                            <h1>Saint Paul University Philippines</h1>
-                            <h3>Tuguegarao City, Cagayan 3500</h3>
-                        </div>
-                    </div>
-
-                    <div class="school-title">
-                        <h4>SCHOOL OF INFORMATION TECHNOLOGY AND ENGINEERING</h4>
-                        <h5><strong>LABORATORY REQUISITION REPORTS</strong></h5>
-                    </div>
-                    ${dataTable.outerHTML}
-                </body>
-                </html>
-            `);
-                printWindow.document.close();
-
-                printWindow.onload = function() {
-                    printWindow.print();
-                    printWindow.close();
-                };
+                fetch("{{ route('print-laboratory-requisition-reports') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            data: rows,
+                            title: 'LABORATORY REQUISITION REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
             })
 
             $('#btn_print_requisition_all').on('click', function() {
                 // Check if the DataTable is initialized
-                var table = $('#requisition_table').DataTable();
-
-                if (table) {
-                    // Destroy the DataTable instance before printing
-                    table.destroy();
-                }
-
-                // Now remove the 'id' and any other DataTable related properties
-                var tableElement = $('#requisition_table'); // Get the table element itself
-                tableElement.removeAttr('id').removeClass('dataTable');
-
-                // Clone the table (without DataTable functionalities)
-                var dataTableClone = tableElement.clone(true,
-                    true); // Clone with all child elements and events
-
-                // Remove the last child of the header row
-                let theadRow = dataTableClone.find('thead tr'); // Get the header row from the cloned table
-
-                // Remove the last child from each row in the tbody
-                let tbodyRows = dataTableClone.find(
-                    'tbody tr'); // Get all rows from the tbody of the cloned table
-                // Open a new window for printing
-                var printWindow = window.open('', '', 'width=1200,height=1200');
-
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>Print Data</title>
-                            <style>
-                                @media print {
-                                    @page {
-                                        size: landscape;
-                                        margin: 1cm;
-                                    }
-                                    body {
-                                        font-family: "Times New Roman", serif;
-                                    }
-                                    h1, h2, h3 {
-                                        text-align: center;
-                                    }
-                                    h1 {
-                                        font-family: "Old English Text MT", serif;
-                                    }
-                                    h2 {
-                                        font-weight: bold;
-                                        text-transform: uppercase;
-                                    }
-                                    table {
-                                        width: 100%;
-                                        border-collapse: collapse;
-                                        margin-top: 20px;
-                                    }
-                                    table th, table td {
-                                        border: 1px solid black;
-                                        padding: 5px;
-                                        text-align: left;
-                                        font-size: 12px;
-                                    }
-                                    table th {
-                                        background-color: #f2f2f2;
-                                    }
-                                }
-                                .header {
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    margin-bottom: 20px;
-                                }
-                                .header img {
-                                    width: 80px;
-                                    height: 80px;
-                                    margin-right: 10px;
-                                }
-                                .header-content {
-                                    text-align: center;
-                                }
-                                .header-content h1 {
-                                    font-weight: normal;
-                                    font-family: "Old English Text MT", serif;
-                                    margin: 0;
-                                }
-                                .header-content h3 {
-                                    font-family: "Times New Roman", serif;
-                                    margin: 0;
-                                }
-                                .school-title {
-                                    text-align: center;
-                                    margin-bottom: 20px;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="header">
-                                <img src="{{ asset('dist/img/spup1.png') }}" alt="Logo">
-                                <div class="header-content">
-                                    <h1>Saint Paul University Philippines</h1>
-                                    <h3>Tuguegarao City, Cagayan 3500</h3>
-                                </div>
-                            </div>
-
-                            <div class="school-title">
-                                <h4>SCHOOL OF INFORMATION TECHNOLOGY AND ENGINEERING</h4>
-                                <h5><strong>LABORATORY TRANSACTIONS</strong></h5>
-                            </div>
-                            ${dataTableClone[0].outerHTML} <!-- Add cloned table -->
-                        </body>
-                    </html>
-                `);
-
-                printWindow.document.close();
-
-                // Delay print to ensure content is fully rendered
-                printWindow.onload = function() {
-                    setTimeout(function() {
-                        printWindow.print();
-                        printWindow.close();
-                    }, 500);
-                };
+                fetch("{{ route('print-laboratory-requisition-reports-all') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            title: 'LABORATORY REQUISITION REPORTS'
+                        }),
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        let url = window.URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                    })
+                    .catch(error => console.error("Error:", error));
             })
 
+
         });
-    </script>
+</script>
 @endsection

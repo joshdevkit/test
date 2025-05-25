@@ -11,7 +11,7 @@ class DEquipmentController extends Controller
     public function index()
     {
         $equipments = Equipment::with('items')->get();
-
+        // dd($equipments);
         return view('dean.equipment.index', compact('equipments'));
     }
 }

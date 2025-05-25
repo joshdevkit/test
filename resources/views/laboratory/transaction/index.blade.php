@@ -31,10 +31,15 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <a class="btn btn-primary float-right btn-sm" href="{{ route('transaction.print-data') }}">
-                                <i class="fas fa-print"></i>
-                                Print
-                            </a>
+                            <div class="flex float-right">
+                                <button class="btn btn-primary btn-sm ml-2" id="print-btn">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+
+                                <button class="btn btn-primary btn-sm ml-2" id="print-all-btn">
+                                    <i class="fas fa-print"></i> Print All
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -321,5 +326,72 @@
         //         printWindow.close();
         //     };
         // });
+</script>
+
+<script>
+    document.getElementById("print-btn").addEventListener("click", function () {
+        let rows = [];
+        document.querySelectorAll("#example1 tbody tr").forEach((row) => {
+            let rowData = [];
+            row.querySelectorAll("td").forEach((td) => {
+                rowData.push(td.innerText.trim());
+            });
+            rows.push(rowData);
+        });
+
+        fetch("{{ route('print-lab-transac') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            },
+            body: JSON.stringify({ data: rows, title: 'LABORATORY TRANSACTIONS' }),
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            let url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
+<script>
+    document.getElementById("print-all-btn").addEventListener("click", function () {
+    const dataTable = $('#example1').DataTable();
+
+        const currentPageLength = dataTable.page.len();
+        const currentPage = dataTable.page();
+
+        dataTable.page.len(-1).draw();
+        setTimeout(() => {
+            let rows = [];
+            document.querySelectorAll("#example1 tbody tr").forEach((row) => {
+                let rowData = [];
+                row.querySelectorAll("td").forEach((td) => {
+                    rowData.push(td.innerText.trim());
+                });
+                rows.push(rowData);
+            });
+
+            fetch("{{ route('print-lab-transac-all') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                },
+                body: JSON.stringify({ data: rows, title: 'LABORATORY TRANSACTIONS' }),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                let url = window.URL.createObjectURL(blob);
+                window.open(url, "_blank");
+            })
+            .catch(error => console.error("Error:", error))
+            .finally(() => {
+                dataTable.page.len(currentPageLength).draw();
+                dataTable.page(currentPage).draw('page');
+            });
+        }, 500);
+    });
 </script>
 @endsection

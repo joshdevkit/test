@@ -357,6 +357,32 @@ Route::middleware(['auth'])->group(function () {
         Route::post('transaction-equipment-report-print', 'siteOfficeTransactionsPrint')->name('siteOfficeTransactionsPrint');
         Route::post('transaction-equipment-report-print-all', 'siteOfficeTransactionsPrintAll')->name('siteOfficeTransactionsPrintAll');
         Route::post('transaction-equipment-damage-report-print-all', 'siteOfficeTransactionsPrintAllDamage')->name('siteOfficeTransactionsPrintAllDamage');
+
+
+        Route::post('laboratory-transaction-print', 'labTransacPrint')->name('print-lab-transac');
+        Route::post('laboratory-transaction-print-all', 'labTransacPrintAll')->name('print-lab-transac-all');
+
+        Route::post('dean-laboratory-transaction-print', 'deanlabTransacPrint')->name('dean-print-lab-transac');
+        Route::post('dean-laboratory-transaction-print-all', 'deanlabTransacPrintAll')->name('dean-print-lab-transac-all');
+
+        Route::post('dean-laboratory-equipment-print', 'deanlabEquipmentPrint')->name('print-lab-equipment');
+        Route::post('dean-laboratory-equipment-print-all', 'deanlabEquipmentPrintAll')->name('print-lab-equipment-all');
+
+
+        Route::post('laboratory-fluid-print', 'labFluidPrint')->name('print-lab-fluid');
+        Route::post('laboratory-fluid-print-all', 'labFluidPrintAll')->name('print-lab-fluid-all');
+
+
+        Route::post('reports/print/requisition-report', 'printRequisitionReport')->name('print-requisition-report');
+        Route::post('reports/print/requisition-report-all', 'printRequisitionReportAll')->name('print-requisition-report-all');
+
+
+        Route::post('dean/supplies/print', 'deanSuppliesPrint')->name('dean-supplies-print');
+        Route::post('dean/supplies/print-all', 'deanSuppliesPrintAll')->name('dean-supplies-print-all');
+
+
+        Route::post('admin-laboratory-equipment-print', 'adminlabEquipmentPrint')->name('admin-print-lab-equipment');
+        Route::post('admin-laboratory-equipment-print-all', 'adminlabEquipmentPrintAll')->name('admin-print-lab-equipment-all');
     });
 });
 

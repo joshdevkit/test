@@ -32,12 +32,16 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm float-right ml-2" id="print-btn">
-                                <i class="fas fa-print"></i> Print
-                            </button>
+                            <a href="{{ route('superadmin.computer_engineering.create') }}"
+                                class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add new
+                                items</a>
                             <button class="btn btn-primary btn-sm float-right" id="print-all-btn">
                                 <i class="fas fa-print"></i> Print All
                             </button>
+                            <button class="btn btn-primary btn-sm float-right mr-2" id="print-btn">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+
                             <!-- /.card-header -->
 
                             <!-- /.card-body -->

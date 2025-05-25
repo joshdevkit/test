@@ -300,6 +300,22 @@ class TeacherBorrowController extends Controller
         ])
             ->latest()
             ->get();
+
+        // foreach ($requisitions as $requisition) {
+        //     foreach ($requisition->items as $item) {
+        //         foreach ($item->serials as $serial) {
+        //             $equipment = $serial->equipmentBelongs;
+
+        //             echo "Equipment: " . ($equipment->equipment ?? 'N/A') . "<br>";
+        //             echo "Brand: " . ($equipment->brand ?? 'N/A') . "<br>";
+        //             echo "Unit: " . ($equipment->unit ?? 'N/A') . "<hr>";
+
+        //             break 3; // exits all 3 nested loops
+        //         }
+        //     }
+        // }
+
+        // exit();
         // dd($requisitions);
         return view('dean.transaction.index', compact('notifications', 'requisitions'));
     }
